@@ -6,7 +6,7 @@ class StatPage extends StatelessWidget{
   Widget build(BuildContext context) {
     return Scaffold(
       body: WebView(
-        initialUrl: "https://www.google.com/",
+        initialUrl: "https://www.coronatracker.com/country/bangladesh/",
         javascriptMode: JavascriptMode.unrestricted,
       ),
     );

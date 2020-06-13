@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:Covid19/map.dart';
 import 'StatePage.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -30,8 +29,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
-//  final Completer<WebViewController> _controller = Completer<WebViewController>();
 
   int pageIndex = 0;
   final MapPage _mappage = new MapPage();

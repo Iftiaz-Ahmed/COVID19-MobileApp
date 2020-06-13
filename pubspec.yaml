@@ -24,6 +24,7 @@ dependencies:
   curved_navigation_bar: ^0.3.2
   flutter:
     sdk: flutter
+  mysql1: ^0.17.1
 
 
   # The following adds the Cupertino Icons font to your application.

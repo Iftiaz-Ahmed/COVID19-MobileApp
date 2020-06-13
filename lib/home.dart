@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget{
             Container(
               margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
               padding: const EdgeInsets.only(top: 15.0),
-              height: 140.0,
+              height: 150.0,
               width: 400.0,
               color: Colors.orange[900],
               child: Column(
@@ -54,44 +54,46 @@ class HomePage extends StatelessWidget{
               ),
             ),
 
-            Container(
-              margin: const EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0),
-              width: 400.0,
-              height: 200.0,
-              padding: const EdgeInsets.only(top: 15.0),
-              color: Colors.cyan[600],
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'Live Statistics BD',
-                    style: TextStyle(
-                        fontSize: 35.0,
-                        fontWeight: FontWeight.bold
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0, bottom: 30.0),
+                padding: const EdgeInsets.only(top: 15.0, right: 15.0, bottom: 15.0, left: 15.0),
+                width: 400.0,
+                height: 230.0,
+                color: Colors.cyan[600],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Live Statistics BD',
+                      style: TextStyle(
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Total Affected: 0000',
-                    style: TextStyle(
-                        fontSize: 25.0,
-                        color: Colors.white
+                    Text(
+                      'Total Affected: 0000',
+                      style: TextStyle(
+                          fontSize: 25.0,
+                          color: Colors.white
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Total Recovered: 000',
-                    style: TextStyle(
-                        fontSize: 25.0,
-                        color: Colors.white
+                    Text(
+                      'Total Recovered: 000',
+                      style: TextStyle(
+                          fontSize: 25.0,
+                          color: Colors.white
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Total Death: 000',
-                    style: TextStyle(
-                        fontSize: 25.0,
-                        color: Colors.white
+                    Text(
+                      'Total Death: 000',
+                      style: TextStyle(
+                          fontSize: 25.0,
+                          color: Colors.white
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             )
           ],
