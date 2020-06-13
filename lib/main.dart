@@ -72,6 +72,12 @@ class _HomeState extends State<Home> {
       return Scaffold(
           appBar: AppBar(
             title: Text('Covid19 Around Us'),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: (){},
+              )
+            ],
           ),
 
           bottomNavigationBar: CurvedNavigationBar(
