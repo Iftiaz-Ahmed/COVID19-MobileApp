@@ -1,6 +1,7 @@
 # Covid19
 
-A new Flutter project.
+A new Flutter project. Currently under development. 
+Developing Team: Iftiaz Ahmed and Team 
 
 ## Getting Started
 
