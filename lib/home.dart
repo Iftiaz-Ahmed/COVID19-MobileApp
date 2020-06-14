@@ -25,7 +25,7 @@ class _HomepageState extends State<HomePage> {
   }
   Future _getData() async{
     db.getConnection().then((conn) {
-      String sql = "SELECT * FROM `user_status` WHERE u_id=16";
+      String sql = "SELECT * FROM `user_status` WHERE u_id=14";
       conn.query(sql).then((results) {
         for (var row in results) {
           setState(() {
@@ -60,125 +60,291 @@ class _HomepageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: <Widget>[
-            Container(
-              margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              height: 120.0,
-              width: 400.0,
-              color: c,
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Status: ' + status,
-                      style: TextStyle(fontSize: 30.0, color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        msg,
-                        style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.white,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  ],
-                )
-              )
-            ),
-
-            Container(
-              margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
-              padding: const EdgeInsets.only(top: 15.0),
-              height: 150.0,
-              width: 400.0,
-              color: Colors.orange[900],
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    'Change your health status',
-                    style: TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-
-                  MyStatefulWidget(),
-
-                  RaisedButton(
-                    onPressed: () {
-                      print("clicked");
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0)
-                    ),
-                    color: Colors.grey[500],
-                    child:  Text(
-                        'Confirm',
-                        style: TextStyle(fontSize: 15.0, color: Colors.white, fontWeight: FontWeight.bold)
-                    ),
+      body: new CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+            expandedHeight: 140.0,
+            floating: true,
+            backgroundColor: Colors.white,
+            flexibleSpace: new FlexibleSpaceBar(
+              background: Container(
+                  margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
+                  padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  height: 120.0,
+                  width: 400.0,
+                  color: c,
+                  child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            'Status: ' + status,
+                            style: TextStyle(fontSize: 30.0, color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              msg,
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                color: Colors.white,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        ],
+                      )
                   )
-                ],
               ),
             ),
+          ),
+          SliverFixedExtentList(
+            itemExtent: 500.0,
+            delegate: SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
+                      if (index > 0) return null; //helps to stop creating infinite list while scrolling
+                return Container(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
+                        padding: const EdgeInsets.only(top: 15.0),
+                        height: 150.0,
+                        width: 400.0,
+                        color: Colors.orange[900],
+                        child: Column(
+                          children: <Widget>[
+                            Text(
+                              'Change your health status',
+                              style: TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
 
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.only(top: 30.0, left: 20.0, right: 20.0, bottom: 30.0),
-                padding: const EdgeInsets.only(top: 15.0, right: 15.0, bottom: 15.0, left: 15.0),
-                width: 400.0,
-                height: 230.0,
-                color: Colors.cyan[600],
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'Live Statistics BD',
-                      style: TextStyle(
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.bold
+                            MyStatefulWidget(),
+
+                            RaisedButton(
+                              onPressed: () {
+                                print("clicked");
+                              },
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0)
+                              ),
+                              color: Colors.grey[500],
+                              child:  Text(
+                                  'Confirm',
+                                  style: TextStyle(fontSize: 15.0, color: Colors.white, fontWeight: FontWeight.bold)
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Total Affected: 0000',
-                      style: TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.white
+                      Container(
+                          margin: EdgeInsets.all(20.0),
+                          padding: EdgeInsets.only(top: 20.0),
+                          width: 400,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10.0),
+                              bottomRight: Radius.circular(10.0),
+                              topLeft: Radius.circular(10.0),
+                              topRight: Radius.circular(10.0),
+                            ),
+                            color: Colors.teal[700],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey,
+                                blurRadius: 10.0,
+                                offset: Offset(0.0, 15.0),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: <Widget>[
+                              Container(
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Align(
+                                        alignment: Alignment.topCenter,
+                                        child: RichText(
+                                          text: TextSpan(
+                                              text: 'Hotline',
+                                              style: TextStyle(
+                                                  fontSize: 25.0,
+                                                  color: Colors.amber,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontWeight: FontWeight.bold
+                                              ),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                    text: ' Numbers',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontStyle: FontStyle.italic,
+                                                      fontSize: 24.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    )
+                                                )
+                                              ]
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 15.0),
+                                        child: Column(
+                                          children: <Widget>[
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: RichText(
+                                                text: TextSpan(
+                                                    text: 'জাতীয় কল সেন্টার: ',
+                                                    style: TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Colors.white,
+                                                        fontStyle: FontStyle.normal,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text: '৩৩৩',
+                                                          style: TextStyle(
+                                                            color: Colors.amber,
+                                                            fontStyle: FontStyle.italic,
+                                                            fontSize: 25.0,
+                                                            fontWeight: FontWeight.bold,
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: RichText(
+                                                text: TextSpan(
+                                                    text: 'স্বাস্থ্য বাতায়ন: ',
+                                                    style: TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Colors.white,
+                                                        fontStyle: FontStyle.normal,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text: '১৬২৬৩',
+                                                          style: TextStyle(
+                                                            color: Colors.amber,
+                                                            fontStyle: FontStyle.italic,
+                                                            fontSize: 25.0,
+                                                            fontWeight: FontWeight.bold,
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: RichText(
+                                                text: TextSpan(
+                                                    text: 'আইইডিসিআর: ',
+                                                    style: TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Colors.white,
+                                                        fontStyle: FontStyle.normal,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text: '১০৬৫৫',
+                                                          style: TextStyle(
+                                                            color: Colors.amber,
+                                                            fontStyle: FontStyle.italic,
+                                                            fontSize: 25.0,
+                                                            fontWeight: FontWeight.bold,
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: RichText(
+                                                text: TextSpan(
+                                                    text: 'বিশেষজ্ঞ হেলথ লাইন: ',
+                                                    style: TextStyle(
+                                                        fontSize: 18.0,
+                                                        color: Colors.white,
+                                                        fontStyle: FontStyle.normal,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text: '০৯৬১১৬৭৭৭৭৭',
+                                                          style: TextStyle(
+                                                            color: Colors.amber,
+                                                            fontStyle: FontStyle.italic,
+                                                            fontSize: 23.0,
+                                                            fontWeight: FontWeight.bold,
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: RichText(
+                                                text: TextSpan(
+                                                    text: 'সজাতীয় হেল্পলাইন: ',
+                                                    style: TextStyle(
+                                                        fontSize: 20.0,
+                                                        color: Colors.white,
+                                                        fontStyle: FontStyle.normal,
+                                                        fontWeight: FontWeight.bold
+                                                    ),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text: '১০৯',
+                                                          style: TextStyle(
+                                                            color: Colors.amber,
+                                                            fontStyle: FontStyle.italic,
+                                                            fontSize: 25.0,
+                                                            fontWeight: FontWeight.bold,
+                                                          )
+                                                      )
+                                                    ]
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+
+                                    ],
+                                  ),
+                                ),
+                              )
+
+                            ],
+                          )
                       ),
-                    ),
-                    Text(
-                      'Total Recovered: 000',
-                      style: TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.white
-                      ),
-                    ),
-                    Text(
-                      'Total Death: 000',
-                      style: TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.white
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+                    ],
+                  ),
+                );
+              }),
+          )
+        ],
+      )
     );
   }
 
 }
+
 
 class MyStatefulWidget extends StatefulWidget {
   MyStatefulWidget({Key key}) : super(key: key);

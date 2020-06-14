@@ -1,3 +1,4 @@
+import 'package:Covid19/profile.dart';
 import 'package:Covid19/home.dart';
 import 'package:Covid19/route.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -74,15 +75,22 @@ class _HomeState extends State<Home> {
             title: Text('Covid19 Around Us'),
             actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: (){},
+                icon: Icon(Icons.account_circle),
+                iconSize: 35.0,
+                color: Colors.black87,
+                onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                  );
+                },
               )
             ],
           ),
 
           bottomNavigationBar: CurvedNavigationBar(
               color: Colors.cyan,
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.white70,
               height: 50.0,
               items: <Widget>[
                   Icon(Icons.map, size: 30, color: Colors.white,),
