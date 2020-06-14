@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'datamodels/user_location.dart';
 import 'mysql.dart';
 
 class HomePage extends StatefulWidget{
@@ -59,18 +61,20 @@ class _HomepageState extends State<HomePage> {
   }
   @override
   Widget build(BuildContext context) {
+    //print location
+    var userLocation = Provider.of<UserLocation>(context);
     return Scaffold(
       body: new CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            expandedHeight: 140.0,
+            expandedHeight: 165.0,
             floating: true,
             backgroundColor: Colors.white,
             flexibleSpace: new FlexibleSpaceBar(
               background: Container(
                   margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                   padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  height: 120.0,
+                  height: 150.0,
                   width: 400.0,
                   color: c,
                   child: Center(
@@ -78,6 +82,9 @@ class _HomepageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
+                          Text(
+                            'Lat: ${userLocation?.latitude}, Long: ${userLocation?.longitude}, Alt: ${userLocation?.altitude}'
+                          ),
                           Text(
                             'Status: ' + status,
                             style: TextStyle(fontSize: 30.0, color: Colors.white, fontWeight: FontWeight.bold),

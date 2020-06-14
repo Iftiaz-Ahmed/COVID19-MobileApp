@@ -1,3 +1,4 @@
+import 'package:Covid19/datamodels/user_location.dart';
 import 'package:Covid19/profile.dart';
 import 'package:Covid19/home.dart';
 import 'package:Covid19/route.dart';
@@ -5,7 +6,10 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Covid19/map.dart';
+import 'package:provider/provider.dart';
 import 'StatePage.dart';
+import 'datamodels/user_location.dart';
+import 'location/location_service.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,12 +18,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: _title,
-      theme: ThemeData(
-        primarySwatch: Colors.cyan,
+    return StreamProvider<UserLocation>(
+      create: (BuildContext context) => LocationService().locationStream,
+      child: MaterialApp(
+        title: _title,
+        theme: ThemeData(
+          primarySwatch: Colors.cyan,
+        ),
+        home: Home(),
       ),
-      home: Home(),
     );
   }
 }
