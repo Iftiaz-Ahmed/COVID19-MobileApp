@@ -20,7 +20,6 @@ class LocationService{
   double _alt = 999.99;
 
   LocationService() {
-
     Timer.run(() {
       _getData();
     });
@@ -64,10 +63,12 @@ class LocationService{
   var db = Mysql();
   Future _saveData() async{
     _getData();
+    print("DB long: $_longtemp\nDB lat: $_lattemp\nDB alt: $_alttemp\n");
+    print("long: $_long\nlat: $_lat\nalt: $_alt\n");
     if(_long != _longtemp || _lat != _lattemp || _alt != _alttemp) {
       db.getConnection().then((conn) {
         print("here");
-        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude) values (14, '$_long', '$_lat', '$_alt')";
+        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude) values (11, '$_long', '$_lat', '$_alt')";
         conn.query(sql);
       });
     } else {
@@ -79,7 +80,7 @@ class LocationService{
     db.getConnection().then((conn) {
       print("get here");
       var l = 1;
-      String sql = "SELECT * FROM `user_locations` WHERE u_id=14 Order by serial DESC limit $l";
+      String sql = "SELECT * FROM `user_locations` WHERE u_id=11 Order by serial DESC limit $l";
       conn.query(sql).then((results) {
         for (var row in results) {
           _longtemp = row[2];

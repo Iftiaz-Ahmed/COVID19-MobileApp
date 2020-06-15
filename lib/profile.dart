@@ -27,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
   Future _getProfile() async{
     db.getConnection().then((conn) {
-      String sql = "SELECT * FROM `users` WHERE u_id=14";
+      String sql = "SELECT * FROM `users` WHERE u_id=11";
       conn.query(sql).then((results) {
         for (var row in results) {
           setState(() {

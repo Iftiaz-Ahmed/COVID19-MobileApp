@@ -1,13 +1,15 @@
 import 'package:Covid19/datamodels/user_location.dart';
+import 'package:Covid19/login/login.dart';
 import 'package:Covid19/profile.dart';
 import 'package:Covid19/home.dart';
 import 'package:Covid19/route.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Covid19/map.dart';
 import 'package:provider/provider.dart';
-import 'StatePage.dart';
+import 'StatsPage.dart';
 import 'datamodels/user_location.dart';
 import 'location/location_service.dart';
 
@@ -25,13 +27,16 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.cyan,
         ),
-        home: Home(),
+        home: LoginScreen(),
       ),
     );
   }
 }
 
 class Home extends StatefulWidget {
+  final FirebaseUser user;
+
+  Home({this.user});
   @override
   _HomeState createState() => _HomeState();
 }
@@ -77,51 +82,54 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
-          appBar: AppBar(
-            title: Text('Covid19 Around Us'),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.account_circle),
-                iconSize: 35.0,
-                color: Colors.black87,
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
-                },
-              )
-            ],
-          ),
-
-          bottomNavigationBar: CurvedNavigationBar(
-              color: Colors.cyan,
-              backgroundColor: Colors.white70,
-              height: 50.0,
-              items: <Widget>[
-                  Icon(Icons.map, size: 30, color: Colors.white,),
-                  Icon(Icons.home, size: 30, color: Colors.white,),
-                  Icon(Icons.assessment, size: 30, color: Colors.white,),
-                  Icon(Icons.directions_car, size: 30, color: Colors.white,),
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text('Covid19 Around Us'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.account_circle),
+                  iconSize: 35.0,
+                  color: Colors.black87,
+                  onPressed: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()),
+                    );
+                  },
+                )
               ],
-              animationDuration: Duration(
-                milliseconds: 300
-              ),
-              animationCurve: Curves.easeInOut,
-              index: 0,
-              onTap: (int tappedIndex){
-                setState(() {
-                  _showPage = _pageChooser(tappedIndex);
-                });
-              },
-          ),
-        body: Container(
-          color: Colors.white,
-          child: Center(
-            child: _showPage,
-          ),
-        )
+            ),
+
+            bottomNavigationBar: CurvedNavigationBar(
+                color: Colors.cyan,
+                backgroundColor: Colors.white70,
+                height: 50.0,
+                items: <Widget>[
+                    Icon(Icons.map, size: 30, color: Colors.white,),
+                    Icon(Icons.home, size: 30, color: Colors.white,),
+                    Icon(Icons.assessment, size: 30, color: Colors.white,),
+                    Icon(Icons.directions_car, size: 30, color: Colors.white,),
+                ],
+                animationDuration: Duration(
+                  milliseconds: 300
+                ),
+                animationCurve: Curves.easeInOut,
+                index: 0,
+                onTap: (int tappedIndex){
+                  setState(() {
+                    _showPage = _pageChooser(tappedIndex);
+                  });
+                },
+            ),
+          body: Container(
+            color: Colors.white,
+            child: Center(
+              child: _showPage,
+            ),
+          )
+        ),
       );
   }
 }

@@ -27,7 +27,7 @@ class _HomepageState extends State<HomePage> {
   }
   Future _getData() async{
     db.getConnection().then((conn) {
-      String sql = "SELECT * FROM `user_status` WHERE u_id=14";
+      String sql = "SELECT * FROM `user_status` WHERE u_id=11";
       conn.query(sql).then((results) {
         for (var row in results) {
           setState(() {
