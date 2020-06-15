@@ -12,18 +12,35 @@ class LocationService{
   var location = Location();
   //Continuously emit location updates
   StreamController<UserLocation> _locationController = StreamController<UserLocation>.broadcast();
+  double _longtemp = 999.99;
+  double _lattemp = 999.99;
+  double _alttemp = 999.99;
+  double _long = 999.99;
+  double _lat = 999.99;
+  double _alt = 999.99;
 
   LocationService() {
+
+    Timer.run(() {
+      _getData();
+    });
+
     location.requestPermission().then((granted) {
-      if (granted != null) {                                // null added
-        location.onLocationChanged.listen((locationData){   //() removed
+      if (granted != null) {
+        location.onLocationChanged.listen((locationData){
           if(locationData != null) {
             _locationController.add(UserLocation(
-                latitude: locationData.latitude,
-                longitude: locationData.longitude,
-                altitude: locationData.altitude,
+              latitude: locationData.latitude,
+              longitude: locationData.longitude,
+              altitude: locationData.altitude,
             ));
+            _long = locationData.longitude;
+            _lat = locationData.latitude;
+            _alt = locationData.altitude;
           }
+        });
+        Timer.periodic(Duration(minutes: 5), (timer) {
+          _saveData();
         });
       }
     });
@@ -42,15 +59,34 @@ class LocationService{
     } catch(e) {
       print("Could not trace location $e");
     }
-    _saveData(_currentLocation);
     return _currentLocation;
   }
   var db = Mysql();
-  Future _saveData(UserLocation currentLocation) async{
+  Future _saveData() async{
+    _getData();
+    if(_long != _longtemp || _lat != _lattemp || _alt != _alttemp) {
+      db.getConnection().then((conn) {
+        print("here");
+        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude) values (14, '$_long', '$_lat', '$_alt')";
+        conn.query(sql);
+      });
+    } else {
+      print("Same location, data not saved");
+    }
+  }
+
+  Future _getData() async{
     db.getConnection().then((conn) {
-      print("here");
-      String sql = "'Insert into user_locations (u_id, longitude, latitude, altitude) values (?, ?, ?, ?)', [14, '${currentLocation?.longitude}', '${currentLocation?.latitude}', '${currentLocation?.altitude}']";
-      conn.query(sql);
+      print("get here");
+      var l = 1;
+      String sql = "SELECT * FROM `user_locations` WHERE u_id=14 Order by serial DESC limit $l";
+      conn.query(sql).then((results) {
+        for (var row in results) {
+          _longtemp = row[2];
+          _lattemp = row[3];
+          _alttemp = row[4];
+        }
+      });
     });
   }
 }
