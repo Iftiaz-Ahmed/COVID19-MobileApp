@@ -13,6 +13,8 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="Covid19"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAdrQEfb7xHpht1--79o-lnpRAIy9axTIc"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

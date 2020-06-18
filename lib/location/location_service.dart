@@ -68,7 +68,7 @@ class LocationService{
     if(_long != _longtemp || _lat != _lattemp || _alt != _alttemp) {
       db.getConnection().then((conn) {
         print("here");
-        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude) values (11, '$_long', '$_lat', '$_alt')";
+        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude, checksum) values (11, '$_long', '$_lat', '$_alt', 11)";
         conn.query(sql);
       });
     } else {
@@ -90,4 +90,5 @@ class LocationService{
       });
     });
   }
+
 }

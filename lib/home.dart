@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'datamodels/user_location.dart';
 import 'mysql.dart';
 
 class HomePage extends StatefulWidget{
@@ -13,61 +10,64 @@ class HomePage extends StatefulWidget{
 }
 
 class _HomepageState extends State<HomePage> {
-  var sts = 0;
-  var status = '';
-  var msg = '';
-  Color c;
+  int _sts = 0;
+  String _status = '';
+  String _msg = '';
+  Color _c;
   var db = new Mysql();
 //  getting status on page initiate
+
   void initState() {
     _getData().then((value){
       print('Async done');
     });
     super.initState();
   }
+
   Future _getData() async{
     db.getConnection().then((conn) {
       String sql = "SELECT * FROM `user_status` WHERE u_id=11";
       conn.query(sql).then((results) {
         for (var row in results) {
           setState(() {
-            sts = row[2];
-            if (sts == 1) {
-              status = 'Not affected';
-              c = const Color(0xFF4CAF50);
-              msg = 'Stay at home, stay safe.';
-            } else if (sts == 2) {
-              status = 'Affected';
-              c = const Color(0xFFF44336);
-              msg = 'Contact your nearby hospital\nor call a doctor';
-            } else if (sts == 3) {
-              status = 'Close Contact';
-              c = const Color(0xFFFBC02D);
-              msg = row[3];
-            } else if (sts == 4) {
-              status = 'Recovered';
-              c = const Color(0xFF42A5F5);
-              msg = 'You fought well, soldier!';
+            _sts = row[2];
+            if (_sts == 1) {
+              _status = 'Not affected';
+              _c = const Color(0xFF4CAF50);
+              _msg = 'Stay at home, stay safe.';
+            } else if (_sts == 2) {
+              _status = 'Affected';
+              _c = const Color(0xFFF44336);
+              _msg = 'Contact your nearby hospital\nor call a doctor';
+            } else if (_sts == 3) {
+              _status = 'Close Contact';
+              _c = const Color(0xFFFBC02D);
+              _msg = row[3];
+            } else if (_sts == 4) {
+              _status = 'Recovered';
+              _c = const Color(0xFF42A5F5);
+              _msg = 'You fought well, soldier!';
             } else {
-              status = "Dead";
-              c = const Color(0xFF00695C);
-              msg = 'The person died on ' + row[4] + '\naccording to ' + row[3];
+              _status = "Dead";
+              _c = const Color(0xFF00695C);
+              _msg = 'The person died on ' + row[4] + '\naccording to ' + row[3];
             }
-            print("Status" + status);
+            print("Status " + _status);
           });
         }
       });
     });
   }
+
+
   @override
   Widget build(BuildContext context) {
-    //print location
-    var userLocation = Provider.of<UserLocation>(context);
+
     return Scaffold(
       body: new CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            expandedHeight: 165.0,
+            expandedHeight: 200.0,
             floating: true,
             backgroundColor: Colors.white,
             flexibleSpace: new FlexibleSpaceBar(
@@ -76,23 +76,20 @@ class _HomepageState extends State<HomePage> {
                   padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                   height: 150.0,
                   width: 400.0,
-                  color: c,
+                  color: _c,
                   child: Center(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Text(
-                            'Lat: ${userLocation?.latitude}, Long: ${userLocation?.longitude}, Alt: ${userLocation?.altitude}'
-                          ),
-                          Text(
-                            'Status: ' + status,
+                            'Status: ' + _status,
                             style: TextStyle(fontSize: 30.0, color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Text(
-                              msg,
+                              _msg,
                               style: TextStyle(
                                 fontSize: 18.0,
                                 color: Colors.white,
