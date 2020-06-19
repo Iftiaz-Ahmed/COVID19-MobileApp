@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'mysql.dart';
+import 'globals.dart' as globals;
 
 class HomePage extends StatefulWidget{
   HomePage({Key key}) : super(key: key);
@@ -15,18 +17,45 @@ class _HomepageState extends State<HomePage> {
   String _msg = '';
   Color _c;
   var db = new Mysql();
+  int _id = globals.uid;
 //  getting status on page initiate
+  String title = "title";
+  String helper = "helper";
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   void initState() {
     _getData().then((value){
       print('Async done');
     });
     super.initState();
+    _firebaseMessaging.configure( //for notification
+      onMessage: (message) async{
+        setState(() {
+          title = message["notification"]["title"];
+          helper = "Status:";
+        });
+
+      },
+      onResume: (message) async{
+        setState(() {
+          title = message["data"]["title"];
+          helper = "New Notification!!";
+        });
+      },
+      onLaunch: (message) async{
+        setState(() {
+          title = message["data"]["title"];
+          helper = "New Notification!!";
+        });
+      }
+
+
+    );
   }
 
   Future _getData() async{
     db.getConnection().then((conn) {
-      String sql = "SELECT * FROM `user_status` WHERE u_id=11";
+      String sql = "SELECT * FROM `user_status` WHERE u_id=$_id";
       conn.query(sql).then((results) {
         for (var row in results) {
           setState(() {
@@ -82,6 +111,9 @@ class _HomepageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
+//                          Text(//push notification
+//                              "$title"
+//                          ),
                           Text(
                             'Status: ' + _status,
                             style: TextStyle(fontSize: 30.0, color: Colors.white, fontWeight: FontWeight.bold),

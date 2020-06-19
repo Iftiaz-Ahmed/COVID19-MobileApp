@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import '../globals.dart' as globals;
 import 'package:Covid19/datamodels/user_location.dart';
 import 'package:location/location.dart';
 
@@ -8,7 +8,7 @@ import '../mysql.dart';
 class LocationService{
   //keep track of current location
   UserLocation _currentLocation;
-
+  int _id = globals.uid;
   var location = Location();
   //Continuously emit location updates
   StreamController<UserLocation> _locationController = StreamController<UserLocation>.broadcast();
@@ -68,7 +68,7 @@ class LocationService{
     if(_long != _longtemp || _lat != _lattemp || _alt != _alttemp) {
       db.getConnection().then((conn) {
         print("here");
-        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude, checksum) values (11, '$_long', '$_lat', '$_alt', 11)";
+        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude, checksum) values ('$_id', '$_long', '$_lat', '$_alt', '$_id')";
         conn.query(sql);
       });
     } else {
@@ -80,7 +80,7 @@ class LocationService{
     db.getConnection().then((conn) {
       print("get here");
       var l = 1;
-      String sql = "SELECT * FROM `user_locations` WHERE u_id=11 Order by serial DESC limit $l";
+      String sql = "SELECT * FROM `user_locations` WHERE u_id=$_id Order by serial DESC limit $l";
       conn.query(sql).then((results) {
         for (var row in results) {
           _longtemp = row[2];

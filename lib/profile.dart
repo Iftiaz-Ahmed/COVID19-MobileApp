@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'mysql.dart';
-
+import 'globals.dart' as globals;
 class ProfilePage extends StatefulWidget{
   ProfilePage({Key key}) : super(key: key);
 
@@ -18,6 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var nid = '';
   var gender = '';
   var age = 0;
+  int _id = globals.uid;
 
   void initState() {
     _getProfile().then((value){
@@ -27,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
   Future _getProfile() async{
     db.getConnection().then((conn) {
-      String sql = "SELECT * FROM `users` WHERE u_id=11";
+      String sql = "SELECT * FROM `users` WHERE u_id=$_id";
       conn.query(sql).then((results) {
         for (var row in results) {
           setState(() {

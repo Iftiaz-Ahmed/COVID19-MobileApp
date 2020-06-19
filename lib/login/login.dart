@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
+import 'userinfo.dart';
 
 class LoginScreen extends StatelessWidget {
   final _phoneController = TextEditingController();
@@ -22,7 +23,7 @@ class LoginScreen extends StatelessWidget {
 
           if(user != null){
             Navigator.push(context, MaterialPageRoute(
-                builder: (context) => Home(user: user,)
+                builder: (context) => SignUpScreen()
             ));
           }else{
             print("Error");
@@ -63,7 +64,7 @@ class LoginScreen extends StatelessWidget {
 
                         if(user != null){
                           Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => Home(user: user,)
+                              builder: (context) => SignUpScreen()
                           ));
                         }else{
                           print("Error");
