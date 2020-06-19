@@ -1,4 +1,4 @@
 library my_prj.globals;
 
-int uid =11;
-String phone='';
+int temp;
+

@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'datamodels/user_location.dart';
 import 'mysql.dart';
-import 'globals.dart' as globals;
 
 
 class MapPage extends StatefulWidget {
@@ -15,7 +14,6 @@ class MapPageState extends State<MapPage> {
   var db = new Mysql();
   var affLat = new List();
   var affLng = new List();
-  int _id = globals.uid;
   BitmapDescriptor pinLocationIcon;
   BitmapDescriptor affectedIcon;
   Set<Marker> markers = Set();

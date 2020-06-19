@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'mysql.dart';
-import 'globals.dart' as globals;
+
 class ProfilePage extends StatefulWidget{
   ProfilePage({Key key}) : super(key: key);
 
@@ -18,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var nid = '';
   var gender = '';
   var age = 0;
-  int _id = globals.uid;
+  int _id;
 
   void initState() {
     _getProfile().then((value){
@@ -27,6 +28,9 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
   }
   Future _getProfile() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _id = prefs.getInt('userID');
+    print('Id is $_id');
     db.getConnection().then((conn) {
       String sql = "SELECT * FROM `users` WHERE u_id=$_id";
       conn.query(sql).then((results) {
@@ -166,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         alignment: Alignment.topLeft,
                         child: RichText(
                           text: TextSpan(
-                              text: 'Email: ',
+                              text: 'Phone: ',
                               style: TextStyle(
                                   fontSize: 25.0,
                                   color: Colors.black,
@@ -175,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               children: <TextSpan>[
                                 TextSpan(
-                                    text: email,
+                                    text: phone,
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 22.0,
@@ -191,7 +195,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         alignment: Alignment.topLeft,
                         child: RichText(
                           text: TextSpan(
-                              text: 'Phone: ',
+                              text: 'Email: ',
                               style: TextStyle(
                                   fontSize: 25.0,
                                   color: Colors.black,
@@ -200,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               children: <TextSpan>[
                                 TextSpan(
-                                    text: phone,
+                                    text: email,
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 22.0,

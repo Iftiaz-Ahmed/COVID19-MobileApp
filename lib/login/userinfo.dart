@@ -1,11 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import '../mysql.dart';
 
 
-// ignore: must_be_immutable
 class SignUpScreen extends StatelessWidget {
   var db = new Mysql();
   final name = new TextEditingController();
@@ -20,6 +21,8 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: AppBar(
         title:Text('Covid19 Around Us'),
@@ -29,6 +32,7 @@ class SignUpScreen extends StatelessWidget {
           margin: EdgeInsets.only(top: 20.0),
           padding: EdgeInsets.all(30.0),
           child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -40,6 +44,12 @@ class SignUpScreen extends StatelessWidget {
                   )),
                 ),
                 TextFormField(
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'This field cannot be empty';
+                    }
+                    return null;
+                  },
                   controller: name,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -58,6 +68,12 @@ class SignUpScreen extends StatelessWidget {
                 SizedBox(height: 16,),
 
                 TextFormField(
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'This field cannot be empty';
+                    }
+                    return null;
+                  },
                   controller: age,
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
@@ -80,7 +96,12 @@ class SignUpScreen extends StatelessWidget {
 
                 SizedBox(height: 16,),
                 DropdownButtonFormField(
-
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'This field cannot be empty';
+                    }
+                    return null;
+                  },
                   hint: Text('Enter your Gender'),
                   onChanged: (value){
                     gender = value;
@@ -146,19 +167,18 @@ class SignUpScreen extends StatelessWidget {
                     textColor: Colors.white,
                     padding: EdgeInsets.all(16),
                     onPressed: () {
-                      _setUserInfo(name.text, email.text, gender, phone, age.text, nid.text);
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => Home()
-                      ));
+                      if (_formKey.currentState.validate()) {
+                        _setUserInfo(name.text, email.text, gender, phone, age.text, nid.text);
+                        Timer(Duration(seconds: 2), (){
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => Home()
+                          ));
+                        });
+                      }
                     },
                     color: Colors.cyan,
                   ),
                 )
-
-
-
-
-
               ],
 
             ),
@@ -168,9 +188,24 @@ class SignUpScreen extends StatelessWidget {
     );
   }
   Future _setUserInfo(name, email, gender, phone, age, nid) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     db.getConnection().then((conn) {
       String sql = "Insert into users (name, email, phone, NID, age, gender) values ('$name', '$email', '$phone', '$nid', '$age', '$gender')";
       conn.query(sql);
+
+      String sql2 = "select u_id from users where phone=$phone limit 1";
+      conn.query(sql2).then((results) async {
+        for (var row in results) {
+          print("Id retrieved " + row[0].toString());
+          prefs.setInt('userID', row[0]);
+          var id = row[0];
+          String sql3 = "Insert into user_status (u_id, u_status) values ($id, 1)";
+          conn.query(sql3);
+        }
+      });
+
     });
+
   }
 }

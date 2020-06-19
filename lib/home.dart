@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'mysql.dart';
-import 'globals.dart' as globals;
 
 class HomePage extends StatefulWidget{
   HomePage({Key key}) : super(key: key);
@@ -17,7 +17,7 @@ class _HomepageState extends State<HomePage> {
   String _msg = '';
   Color _c;
   var db = new Mysql();
-  int _id = globals.uid;
+  int _id;
 //  getting status on page initiate
   String title = "title";
   String helper = "helper";
@@ -54,6 +54,8 @@ class _HomepageState extends State<HomePage> {
   }
 
   Future _getData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _id = prefs.getInt('userID');
     db.getConnection().then((conn) {
       String sql = "SELECT * FROM `user_status` WHERE u_id=$_id";
       conn.query(sql).then((results) {

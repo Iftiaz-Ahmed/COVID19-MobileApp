@@ -1,5 +1,5 @@
 import 'dart:async';
-import '../globals.dart' as globals;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:Covid19/datamodels/user_location.dart';
 import 'package:location/location.dart';
 
@@ -8,7 +8,7 @@ import '../mysql.dart';
 class LocationService{
   //keep track of current location
   UserLocation _currentLocation;
-  int _id = globals.uid;
+  int _id;
   var location = Location();
   //Continuously emit location updates
   StreamController<UserLocation> _locationController = StreamController<UserLocation>.broadcast();
@@ -62,6 +62,8 @@ class LocationService{
   }
   var db = Mysql();
   Future _saveData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _id = prefs.getInt('userID');
     _getData();
     print("DB long: $_longtemp\nDB lat: $_lattemp\nDB alt: $_alttemp\n");
     print("long: $_long\nlat: $_lat\nalt: $_alt\n");
@@ -77,6 +79,8 @@ class LocationService{
   }
 
   Future _getData() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _id = prefs.getInt('userID');
     db.getConnection().then((conn) {
       print("get here");
       var l = 1;

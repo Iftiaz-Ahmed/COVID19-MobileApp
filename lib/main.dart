@@ -12,12 +12,30 @@ import 'package:provider/provider.dart';
 import 'StatsPage.dart';
 import 'datamodels/user_location.dart';
 import 'location/location_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:Covid19/globals.dart' as globals;
 
-void main() => runApp(MyApp());
+//void main() => runApp(MyApp());
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  globals.temp = prefs.getInt('userID');
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  static const String _title = 'Covid19 Around Us';
+  bool _auth = false;
+  void initState(){
+    checkLoginStatus();
+  }
+  Future<void> checkLoginStatus() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _auth = prefs.getBool('auth');
+  }
 
+  static const String _title = 'Covid19 Around Us';
   @override
   Widget build(BuildContext context) {
     return StreamProvider<UserLocation>(
@@ -27,7 +45,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.cyan,
         ),
-        home: LoginScreen(),
+        home: globals.temp == null ? LoginScreen() : Home()
       ),
     );
   }
