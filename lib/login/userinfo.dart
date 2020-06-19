@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../main.dart';
+import '../mysql.dart';
 
 
+// ignore: must_be_immutable
 class SignUpScreen extends StatelessWidget {
+  var db = new Mysql();
+  final name = new TextEditingController();
+  final email = new TextEditingController();
+  final age = new TextEditingController();
+  var gender='';
+  final nid = new TextEditingController();
+  var phone='';
+  SignUpScreen(TextEditingController phoneController){
+    phone = phoneController.text.trim();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,6 +40,7 @@ class SignUpScreen extends StatelessWidget {
                   )),
                 ),
                 TextFormField(
+                  controller: name,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -43,6 +58,11 @@ class SignUpScreen extends StatelessWidget {
                 SizedBox(height: 16,),
 
                 TextFormField(
+                  controller: age,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    WhitelistingTextInputFormatter.digitsOnly
+                  ], // Only numbers can be entered
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -60,8 +80,10 @@ class SignUpScreen extends StatelessWidget {
 
                 SizedBox(height: 16,),
                 DropdownButtonFormField(
+
                   hint: Text('Enter your Gender'),
-                  onChanged: (val){
+                  onChanged: (value){
+                    gender = value;
                   },
                   value:null,
                   items:[
@@ -73,7 +95,6 @@ class SignUpScreen extends StatelessWidget {
                       value:'female',
                       child: Text('Female'),
                     ),
-
                   ],
 
 
@@ -83,6 +104,7 @@ class SignUpScreen extends StatelessWidget {
 
                 SizedBox(height: 16,),
                 TextFormField(
+                  controller: email,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -100,6 +122,7 @@ class SignUpScreen extends StatelessWidget {
 
                 SizedBox(height: 16,),
                 TextFormField(
+                  controller: nid,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -123,6 +146,7 @@ class SignUpScreen extends StatelessWidget {
                     textColor: Colors.white,
                     padding: EdgeInsets.all(16),
                     onPressed: () {
+                      _setUserInfo(name.text, email.text, gender, phone, age.text, nid.text);
                       Navigator.push(context, MaterialPageRoute(
                           builder: (context) => Home()
                       ));
@@ -141,8 +165,12 @@ class SignUpScreen extends StatelessWidget {
           ),
         ),
       ),
-
-
     );
+  }
+  Future _setUserInfo(name, email, gender, phone, age, nid) async{
+    db.getConnection().then((conn) {
+      String sql = "Insert into users (name, email, phone, NID, age, gender) values ('$name', '$email', '$phone', '$nid', '$age', '$gender')";
+      conn.query(sql);
+    });
   }
 }
