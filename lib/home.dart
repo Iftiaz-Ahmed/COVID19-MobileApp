@@ -61,11 +61,14 @@ class _HomepageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int _id = prefs.getInt("userID");
     int _st = 0;
-    if (selectedStatus == "Affected"){
+    if (selectedStatus == "Not Affected"){
+      _st = 1;
+    }else if (selectedStatus == "Affected"){
       _st = 2;
-    } else{
+    }else{
       _st = 4;
     }
+
     print("Status in http $_st");
     return http.post(
       'http://192.168.1.45:80/covid19/update.php',
@@ -90,7 +93,7 @@ class _HomepageState extends State<HomePage> {
           setState(() {
             _sts = row[2];
             if (_sts == 1) {
-              _status = 'Not affected';
+              _status = 'Safe';
               _c = const Color(0xFF4CAF50);
               _msg = 'Stay at home, stay safe.';
             } else if (_sts == 2) {
@@ -115,6 +118,42 @@ class _HomepageState extends State<HomePage> {
         }
       });
     });
+  }
+
+  showAlertDialog(String selectedStatus, BuildContext context) {
+
+    // set up the buttons
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed:  () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = FlatButton(
+      child: Text("Continue"),
+      onPressed:  () {
+        updateStatus(selectedStatus);
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Changing your status"),
+      content: Text("This is a very sensitive step,\nare you sure you want to change your status to $selectedStatus?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
 
@@ -190,7 +229,14 @@ class _HomepageState extends State<HomePage> {
                             Padding(
                               padding: EdgeInsets.only(left: 80, right: 80, top: 20, bottom: 20),
                               child: DropdownButtonFormField(
-                                hint: Text('Your Status'),
+                                iconSize: 30,
+                                iconEnabledColor: Colors.white,
+                                hint: Text(
+                                    'Your Status',
+                                    style: TextStyle(
+                                      color: Colors.white
+                                    ),
+                                ),
                                 onChanged: (value){
                                   setState(() {
                                     selectedStatus = value;
@@ -199,10 +245,20 @@ class _HomepageState extends State<HomePage> {
                                 value:null,
                                 items:[
                                   DropdownMenuItem(
+                                    value:'Not Affected',
+                                    child: Text(
+                                        'Not Affected',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
                                     value:'Affected',
                                     child: Text(
-                                        'Affected',
-                                        style: TextStyle(
+                                      'Affected',
+                                      style: TextStyle(
                                           color: Colors.black,
                                           fontSize: 20
                                       ),
@@ -226,10 +282,11 @@ class _HomepageState extends State<HomePage> {
                               ),
                             ),
 
+
                             RaisedButton(
                               onPressed: () {
                                 print('$selectedStatus');
-                                updateStatus(selectedStatus);
+                                showAlertDialog(selectedStatus, context);
                               },
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20.0)
