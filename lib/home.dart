@@ -132,8 +132,11 @@ class _HomepageState extends State<HomePage> {
     Widget continueButton = FlatButton(
       child: Text("Continue"),
       onPressed:  () {
-        updateStatus(selectedStatus);
-        Navigator.of(context).pop();
+        setState(() {
+          updateStatus(selectedStatus);
+          _getData();
+          Navigator.of(context).pop();
+        });
       },
     );
 
@@ -218,7 +221,17 @@ class _HomepageState extends State<HomePage> {
                         padding: const EdgeInsets.only(top: 15.0),
                         height: 200.0,
                         width: 400.0,
-                        color: Colors.orange[900],
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.orange[400],
+                                Colors.deepOrange
+                              ]
+                          ),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
                         child: Column(
                           children: <Widget>[
                             Text(
@@ -231,6 +244,11 @@ class _HomepageState extends State<HomePage> {
                               child: DropdownButtonFormField(
                                 iconSize: 30,
                                 iconEnabledColor: Colors.white,
+                                decoration: InputDecoration(
+                                    enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.white)
+                                    ),
+                                ),
                                 hint: Text(
                                     'Your Status',
                                     style: TextStyle(
@@ -289,11 +307,11 @@ class _HomepageState extends State<HomePage> {
                                 showAlertDialog(selectedStatus, context);
                               },
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20.0)
+                                  borderRadius: BorderRadius.circular(20.0),
                               ),
-                              color: Colors.grey[500],
+                              color: Colors.deepOrange[500],
                               child:  Text(
-                                  'Confirm',
+                                  'CONFIRM',
                                   style: TextStyle(fontSize: 15.0, color: Colors.white, fontWeight: FontWeight.bold)
                               ),
                             )
@@ -305,20 +323,15 @@ class _HomepageState extends State<HomePage> {
                           padding: EdgeInsets.only(top: 20.0),
                           width: 400,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(10.0),
-                              bottomRight: Radius.circular(10.0),
-                              topLeft: Radius.circular(10.0),
-                              topRight: Radius.circular(10.0),
+                            gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.teal[500],
+                                  Colors.teal[900]
+                                ]
                             ),
-                            color: Colors.teal[700],
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey,
-                                blurRadius: 10.0,
-                                offset: Offset(0.0, 15.0),
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(20.0),
                           ),
                           child: Column(
                             children: <Widget>[

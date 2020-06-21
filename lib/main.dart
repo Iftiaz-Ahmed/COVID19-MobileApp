@@ -121,7 +121,7 @@ class _HomeState extends State<Home> {
 
             bottomNavigationBar: CurvedNavigationBar(
                 color: Colors.cyan,
-                backgroundColor: transparent,
+                backgroundColor: Colors.transparent,
                 height: 50.0,
                 items: <Widget>[
                     Icon(Icons.map, size: 30, color: Colors.white,),
@@ -141,7 +141,6 @@ class _HomeState extends State<Home> {
                 },
             ),
           body: Container(
-            color: Colors.white,
             child: Center(
               child: _showPage,
             ),
