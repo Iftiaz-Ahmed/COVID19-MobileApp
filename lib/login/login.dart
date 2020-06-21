@@ -1,81 +1,119 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'userinfo.dart';
+import '../mysql.dart';
+import 'package:Covid19/globals.dart' as globals;
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget{
+  LoginScreen({Key key}) : super(key: key);
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  var userE = 0;
   final _phoneController = TextEditingController();
   final _codeController = TextEditingController();
+  var _msg = '';
+  var db = new Mysql();
 
-  Future<bool> loginUser(String phone, BuildContext context) async{
+  void checkEuser(String phone, BuildContext context){
+    var id;
+    db.getConnection().then((conn) {
+      print("Database connected.");
+      String sql = "select u_id from users where phone=$phone";
+      conn.query(sql).then((results) {
+        if (results.length == 1) {
+          // User exists
+          setState(() {
+            _msg = "* Phone number already registered!";
+          });
+        } else {
+          // User doesn't exist
+          loginUser(phone, context);
+        }
+      });
+    });
+  }
+
+  void loginUser(String phone, BuildContext context) {
     FirebaseAuth _auth = FirebaseAuth.instance;
 
-    _auth.verifyPhoneNumber(
-        phoneNumber: phone,
-        timeout: Duration(seconds: 60),
-        verificationCompleted: (AuthCredential credential) async{
-          Navigator.of(context).pop();
+      _auth.verifyPhoneNumber(
+          phoneNumber: phone,
+          timeout: Duration(seconds: 60),
+          verificationCompleted: (AuthCredential credential) async{
+            Navigator.of(context).pop();
 
-          AuthResult result = await _auth.signInWithCredential(credential);
+            AuthResult result = await _auth.signInWithCredential(credential);
 
-          FirebaseUser user = result.user;
+            FirebaseUser user = result.user;
 
-          if(user != null){
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => SignUpScreen(_phoneController)
-            ));
-          }else{
-            print("Error");
-          }
+            if(user != null){
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => SignUpScreen(_phoneController)
+              ));
+            }else{
+              print("Error");
+            }
 
-          //This callback would gets called when verification is done automatically
-        },
-        verificationFailed: (AuthException exception){
-          print(exception);
-        },
-        codeSent: (String verificationId, [int forceResendingToken]){
-          showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) {
-                return AlertDialog(
-                  title: Text("Enter Verification Code"),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      TextField(
-                        controller: _codeController,
-                      ),
+            //This callback would gets called when verification is done automatically
+          },
+          verificationFailed: (AuthException exception){
+            print(exception);
+          },
+          codeSent: (String verificationId, [int forceResendingToken]){
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Text("Enter Verification Code"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        TextField(
+                          controller: _codeController,
+                        ),
+                      ],
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text("Confirm"),
+                        textColor: Colors.white,
+                        color: Colors.cyan,
+                        onPressed: () async{
+                          final code = _codeController.text.trim();
+                          AuthCredential credential = PhoneAuthProvider.getCredential(verificationId: verificationId, smsCode: code);
+
+                          AuthResult result = await _auth.signInWithCredential(credential);
+
+                          FirebaseUser user = result.user;
+
+                          if(user != null){
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => SignUpScreen(_phoneController)
+                            ));
+                          }else{
+                            print("Error");
+                          }
+                        },
+                      )
                     ],
-                  ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text("Confirm"),
-                      textColor: Colors.white,
-                      color: Colors.cyan,
-                      onPressed: () async{
-                        final code = _codeController.text.trim();
-                        AuthCredential credential = PhoneAuthProvider.getCredential(verificationId: verificationId, smsCode: code);
+                  );
+                }
+            );
+          },
+          codeAutoRetrievalTimeout: null
+      );
+  }
 
-                        AuthResult result = await _auth.signInWithCredential(credential);
+  Future checkPhone(phone) async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-                        FirebaseUser user = result.user;
-
-                        if(user != null){
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => SignUpScreen(_phoneController)
-                          ));
-                        }else{
-                          print("Error");
-                        }
-                      },
-                    )
-                  ],
-                );
-              }
-          );
-        },
-        codeAutoRetrievalTimeout: null
-    );
   }
 
   @override
@@ -99,6 +137,19 @@ class LoginScreen extends StatelessWidget {
                   ),
 
                   SizedBox(height: 16,),
+
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 15.0),
+                      child: Text(
+                        _msg,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red
+                        ),
+                      ),
+                    ),
+                  ),
 
                   TextFormField(
                     decoration: InputDecoration(
@@ -129,14 +180,12 @@ class LoginScreen extends StatelessWidget {
                       textColor: Colors.white,
                       padding: EdgeInsets.all(16),
                       onPressed: () {
-                        final phone = _phoneController.text.trim();
-
-                        loginUser(phone, context);
-
+                          final phone = _phoneController.text.trim();
+                          checkEuser(phone, context);
                       },
                       color: Colors.cyan,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

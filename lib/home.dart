@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mysql.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget{
   HomePage({Key key}) : super(key: key);
@@ -16,6 +19,7 @@ class _HomepageState extends State<HomePage> {
   String _status = '';
   String _msg = '';
   Color _c;
+  var selectedStatus='';
   var db = new Mysql();
   int _id;
 //  getting status on page initiate
@@ -52,6 +56,29 @@ class _HomepageState extends State<HomePage> {
 
     );
   }
+
+  Future<http.Response> updateStatus(String selectedStatus) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int _id = prefs.getInt("userID");
+    int _st = 0;
+    if (selectedStatus == "Affected"){
+      _st = 2;
+    } else{
+      _st = 4;
+    }
+    print("Status in http $_st");
+    return http.post(
+      'http://192.168.1.45:80/covid19/update.php',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, int>{
+        'uStatus': _st,
+        'uid': _id,
+      }),
+    );
+  }
+
 
   Future _getData() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -150,7 +177,7 @@ class _HomepageState extends State<HomePage> {
                       Container(
                         margin: const EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0),
                         padding: const EdgeInsets.only(top: 15.0),
-                        height: 150.0,
+                        height: 200.0,
                         width: 400.0,
                         color: Colors.orange[900],
                         child: Column(
@@ -160,11 +187,49 @@ class _HomepageState extends State<HomePage> {
                               style: TextStyle(fontSize: 20.0, color: Colors.white, fontWeight: FontWeight.bold),
                             ),
 
-                            MyStatefulWidget(),
+                            Padding(
+                              padding: EdgeInsets.only(left: 80, right: 80, top: 20, bottom: 20),
+                              child: DropdownButtonFormField(
+                                hint: Text('Your Status'),
+                                onChanged: (value){
+                                  setState(() {
+                                    selectedStatus = value;
+                                  });
+                                },
+                                value:null,
+                                items:[
+                                  DropdownMenuItem(
+                                    value:'Affected',
+                                    child: Text(
+                                        'Affected',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20
+                                      ),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value:'Recovered',
+                                    child: Text(
+                                      'Recovered',
+                                       style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                style: TextStyle(
+
+                                  fontSize: 20
+                                ),
+                              ),
+                            ),
 
                             RaisedButton(
                               onPressed: () {
-                                print("clicked");
+                                print('$selectedStatus');
+                                updateStatus(selectedStatus);
                               },
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20.0)
@@ -383,38 +448,3 @@ class _HomepageState extends State<HomePage> {
 
 }
 
-
-class MyStatefulWidget extends StatefulWidget {
-  MyStatefulWidget({Key key}) : super(key: key);
-
-  @override
-  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
-}
-
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  String dropdownValue = 'Not Affected';
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton<String>(
-      value: dropdownValue,
-      dropdownColor: Colors.orange[900],
-      icon: Icon(Icons.arrow_downward, color: Colors.white),
-      iconSize: 24,
-      elevation: 16,
-      style: TextStyle(color: Colors.white),
-      onChanged: (String newValue) {
-        setState(() {
-          dropdownValue = newValue;
-        });
-      },
-      items: <String>['Not Affected', 'Affected', 'Recovered']
-          .map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-    );
-  }
-}

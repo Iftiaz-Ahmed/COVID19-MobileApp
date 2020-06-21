@@ -64,17 +64,19 @@ class LocationService{
   Future _saveData() async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _id = prefs.getInt('userID');
-    _getData();
-    print("DB long: $_longtemp\nDB lat: $_lattemp\nDB alt: $_alttemp\n");
-    print("long: $_long\nlat: $_lat\nalt: $_alt\n");
-    if(_long != _longtemp || _lat != _lattemp || _alt != _alttemp) {
-      db.getConnection().then((conn) {
-        print("here");
-        String sql = "Insert into user_locations (u_id, longitude, latitude, altitude, checksum) values ('$_id', '$_long', '$_lat', '$_alt', '$_id')";
-        conn.query(sql);
-      });
-    } else {
-      print("Same location, data not saved");
+    if(_id > 0) {
+      _getData();
+      print("DB long: $_longtemp\nDB lat: $_lattemp\nDB alt: $_alttemp\n");
+      print("long: $_long\nlat: $_lat\nalt: $_alt\n");
+      if(_long != _longtemp || _lat != _lattemp || _alt != _alttemp) {
+        db.getConnection().then((conn) {
+          print("here");
+          String sql = "Insert into user_locations (u_id, longitude, latitude, altitude, checksum) values ('$_id', '$_long', '$_lat', '$_alt', '$_id')";
+          conn.query(sql);
+        });
+      } else {
+        print("Same location, data not saved");
+      }
     }
   }
 

@@ -25,14 +25,12 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  bool _auth = false;
   void initState(){
     checkLoginStatus();
   }
   Future<void> checkLoginStatus() async {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _auth = prefs.getBool('auth');
   }
 
   static const String _title = 'Covid19 Around Us';
@@ -66,6 +64,7 @@ class _HomeState extends State<Home> {
   final HomePage _homepage = new HomePage();
   final RoutePage _routepage = new RoutePage();
   final StatPage _statpage = new StatPage();
+  static const Color transparent = Color(0x00000000);
 
   Widget _showPage = new MapPage();
 
@@ -122,7 +121,7 @@ class _HomeState extends State<Home> {
 
             bottomNavigationBar: CurvedNavigationBar(
                 color: Colors.cyan,
-                backgroundColor: Colors.white70,
+                backgroundColor: transparent,
                 height: 50.0,
                 items: <Widget>[
                     Icon(Icons.map, size: 30, color: Colors.white,),
