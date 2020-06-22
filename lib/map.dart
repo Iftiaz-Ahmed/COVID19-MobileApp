@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'datamodels/user_location.dart';
 import 'mysql.dart';
+import 'package:Covid19/globals.dart' as globals;
 
 
 class MapPage extends StatefulWidget {
@@ -17,6 +20,9 @@ class MapPageState extends State<MapPage> {
   BitmapDescriptor pinLocationIcon;
   BitmapDescriptor affectedIcon;
   Set<Marker> markers = Set();
+
+  Completer<GoogleMapController> _controller = Completer();
+
   @override
   void initState() {
     super.initState();
@@ -36,29 +42,50 @@ class MapPageState extends State<MapPage> {
 
   }
 
+
   @override
   Widget build(BuildContext context) {
     var userLocation = Provider.of<UserLocation>(context);
-
+    var target;
+    globals.mapTarget = target;
     setState(() {
-      Marker resultMarker = Marker(
+      target = LatLng(userLocation?.latitude, userLocation?.longitude);
+      centerScreen(userLocation);
+      Marker resultMarker = new Marker(
         markerId: MarkerId('myPos'),
         position: LatLng(userLocation?.latitude, userLocation?.longitude),
         icon: pinLocationIcon,
       );
       //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
       markers.add(resultMarker);
+
     });
 
     return new Scaffold(
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: LatLng(userLocation?.latitude, userLocation?.longitude),
-          zoom: 19.0,
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: target,
+            zoom: 15.0,
+          ),
+          markers: markers,
+          onMapCreated: (GoogleMapController controller){
+            _controller.complete(controller);
+          },
         ),
-        markers: markers,
       ),
     );
+  }
+
+  //changing map center dynamically
+  Future<void> centerScreen(UserLocation position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: LatLng(position.latitude, position.longitude),
+      zoom: 15.0
+    )));
   }
 
   Future _getAffectedLoc() async{
