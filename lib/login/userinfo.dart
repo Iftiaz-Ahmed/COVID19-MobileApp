@@ -15,6 +15,7 @@ class SignUpScreen extends StatelessWidget {
   var gender='';
   final nid = new TextEditingController();
   var phone='';
+  final password = new TextEditingController();
   SignUpScreen(TextEditingController phoneController){
     phone = phoneController.text.trim();
   }
@@ -160,6 +161,31 @@ class SignUpScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16,),
 
+                TextFormField(
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'This field cannot be empty';
+                    }
+                    return null;
+                  },
+                  controller: password,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        borderSide: BorderSide(color: Colors.grey[300])
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        borderSide: BorderSide(color: Colors.grey[400])
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintText: "Password",
+                  ),
+                ),
+                SizedBox(height: 16,),
+
                 Container(
                   width: double.infinity,
                   child: FlatButton(
@@ -168,7 +194,7 @@ class SignUpScreen extends StatelessWidget {
                     padding: EdgeInsets.all(16),
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
-                        _setUserInfo(name.text, email.text, gender, phone, age.text, nid.text);
+                        _setUserInfo(name.text, email.text, gender, phone, age.text, nid.text, password.text);
                         Timer(Duration(seconds: 2), (){
                           Navigator.push(context, MaterialPageRoute(
                               builder: (context) => Home()
@@ -187,11 +213,11 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
-  Future _setUserInfo(name, email, gender, phone, age, nid) async{
+  Future _setUserInfo(name, email, gender, phone, age, nid, pass) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     db.getConnection().then((conn) {
-      String sql = "Insert into users (name, email, phone, NID, age, gender) values ('$name', '$email', '$phone', '$nid', '$age', '$gender')";
+      String sql = "Insert into users (name, email, phone, NID, age, gender, password) values ('$name', '$email', '$phone', '$nid', '$age', '$gender', '$pass')";
       conn.query(sql);
 
       String sql2 = "select u_id from users where phone=$phone limit 1";

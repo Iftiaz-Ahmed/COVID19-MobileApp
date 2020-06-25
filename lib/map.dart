@@ -77,7 +77,7 @@ class MapPageState extends State<MapPage> {
         child: GoogleMap(
           initialCameraPosition: CameraPosition(
             target: target,
-            zoom: 15.0,
+            zoom: 18.0,
           ),
           markers: markers,
           onMapCreated: (GoogleMapController controller) async{
@@ -98,7 +98,7 @@ class MapPageState extends State<MapPage> {
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(position.latitude, position.longitude),
-        zoom: 15.0,
+        zoom: 18.0,
     )));
   }
 
