@@ -64,7 +64,6 @@ class _HomeState extends State<Home> {
   final HomePage _homepage = new HomePage();
   final RoutePage _routepage = new RoutePage();
   final StatPage _statpage = new StatPage();
-  static const Color transparent = Color(0x00000000);
 
   Widget _showPage = new MapPage();
 

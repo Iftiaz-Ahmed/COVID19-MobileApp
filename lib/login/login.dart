@@ -1,11 +1,9 @@
-import 'package:Covid19/map.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import 'userinfo.dart';
 import '../mysql.dart';
-import 'package:Covid19/globals.dart' as globals;
 
 class LoginScreen extends StatefulWidget{
   LoginScreen({Key key}) : super(key: key);
@@ -24,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void checkEuser(String phone, BuildContext context) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var id;
+
     db.getConnection().then((conn) {
       print("Database connected.");
       String sql = "select u_id, password from users where phone=$phone";
