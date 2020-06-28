@@ -9,6 +9,8 @@ import 'datamodels/user_location.dart';
 import 'location/direction_request.dart';
 import 'package:Covid19/globals.dart' as globals;
 
+import 'mysql.dart';
+
 
 class RoutePage extends StatefulWidget {
   @override
@@ -16,9 +18,9 @@ class RoutePage extends StatefulWidget {
 }
 
 class RoutePageState extends State<RoutePage> {
-
+  var db = new Mysql();
   bool loading = true;
-  final Set<Marker> _markers = {};
+  Set<Marker> _markers = {};
   final Set<Polyline> _polyLines = {};
   GoogleMapsServices _googleMapsServices = GoogleMapsServices();
   Set<Polyline> get polyLines => _polyLines;
@@ -26,19 +28,83 @@ class RoutePageState extends State<RoutePage> {
   static LatLng locTarget;
   LocationData currentLocation;
   final place = TextEditingController();
+  BitmapDescriptor affectedIcon;
+  var routeAffectedPersonCounter = 0;
+  var tempLat;
+  var tempLng;
 
   List directionLatLng = List();
   List locationPointLat = List();
   List locationPointLng = List();
 
   void initState() {
-    setState(() {
-
-    });
     super.initState();
-
+    setCustomMapPin();
   }
 
+  void setCustomMapPin() async {
+    affectedIcon = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/affected.png');
+  }
+
+  Future getAffectedData(List lat, List lng) async {
+    db.getConnection().then((conn) {
+      var x = 0;
+      routeAffectedPersonCounter = 0;
+      while(x < lat.length) {
+        //    creating a boundingBox for each point within 50m radius
+        var maxLat = lat[x] + 0.0005;
+        var minLat = lat[x] - 0.0005;
+        var maxLng = lng[x] + 0.0005;
+        var minLng = lng[x] - 0.0005;
+        setAffectedMarker(maxLat,minLat,maxLng,minLng,conn,x);
+        x++;
+      }
+    });
+  }
+
+  void setAffectedMarker(maxLat,minLat,maxLng,minLng,conn,pointNo){
+    var affLat = new List();
+    var affLng = new List();
+    String sql = "SELECT latitude, longitude, date_time from user_locations where serial in (SELECT serial from user_locations WHERE u_id in (SELECT u_id from user_status where u_status=2) and serial in (SELECT max(serial) from user_locations group by u_id) GROUP by u_id) and latitude BETWEEN $minLat and $maxLat and longitude BETWEEN $minLng and $maxLng";
+    conn.query(sql).then((results) {
+      for (var row in results) {
+        setState(() {
+          affLat.add(row[0]);
+          affLng.add(row[1]);
+          if(tempLat == null && tempLng == null) {
+            tempLng = row[1];
+            tempLat = row[0];
+            routeAffectedPersonCounter++;
+          }
+
+          if(tempLat == row[0] && tempLng == row[1]) {
+            //do nothing
+          } else {
+            print(tempLng);
+            print(tempLat);
+            routeAffectedPersonCounter++;
+            tempLng = row[1];
+            tempLat = row[0];
+            print(routeAffectedPersonCounter);
+          }
+        });
+      }
+
+      setState(() {
+        for (var i=0; i<affLng.length; i++) {
+          Marker affMarker = new Marker(
+            markerId: MarkerId("$pointNo$i"),
+            position: LatLng(affLat[i], affLng[i]),
+            icon: affectedIcon,
+          );
+          print("marker $pointNo$i added");
+          _markers.add(affMarker);
+        }
+      });
+    });
+  }
 
 
   void onCameraMove(CameraPosition position) {
@@ -54,8 +120,6 @@ class RoutePageState extends State<RoutePage> {
         locationPointLng.add(points[i]);
       }
     }
-    print(locationPointLat);
-    print(locationPointLng);
     return result;
   }
 
@@ -66,14 +130,15 @@ class RoutePageState extends State<RoutePage> {
         locTarget, destination);
     createRoute(route);
     _addMarker(destination, placeName);
+    getAffectedData(locationPointLat, locationPointLng);
   }
 
   void createRoute(String encondedPoly) {
     _polyLines.add(Polyline(
         polylineId: PolylineId(locTarget.toString()),
-        width: 7,
+        width: 8,
         points: _convertToLatLng(_decodePoly(encondedPoly)),
-        color: Colors.purple));
+        color: Colors.teal));
   }
 
   void _addMarker(LatLng location, String address) {
@@ -209,6 +274,8 @@ class RoutePageState extends State<RoutePage> {
                           List coord = new List();
                           coord = await _googleMapsServices.getLatlng(place.text);
                           setState(() {
+//                          resetting the lists
+                            _markers = {};
                             locationPointLat = [];
                             locationPointLng = [];
                             sendRequest(coord[0], coord[1], place.text);
