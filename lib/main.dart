@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context) => LocationService().locationStream,
       child: MaterialApp(
         title: _title,
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.cyan,
         ),
@@ -120,7 +121,8 @@ class _HomeState extends State<Home> {
 
             bottomNavigationBar: CurvedNavigationBar(
                 color: Colors.cyan,
-                backgroundColor: Colors.transparent,
+                backgroundColor: Colors.cyan,
+                buttonBackgroundColor: Colors.cyan,
                 height: 50.0,
                 items: <Widget>[
                     Icon(Icons.map, size: 30, color: Colors.white,),

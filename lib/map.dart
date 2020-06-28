@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'datamodels/user_location.dart';
 import 'mysql.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 
 class MapPage extends StatefulWidget {
@@ -14,7 +15,7 @@ class MapPage extends StatefulWidget {
 
 class MapPageState extends State<MapPage> {
   var db = new Mysql();
-
+  String _mapStyle;
   BitmapDescriptor pinLocationIcon;
   BitmapDescriptor affectedIcon;
   Set<Marker> markers = Set();
@@ -27,6 +28,9 @@ class MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     setCustomMapPin();
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
   }
 
   void setCustomMapPin() async {
@@ -80,13 +84,15 @@ class MapPageState extends State<MapPage> {
         child: GoogleMap(
           initialCameraPosition: CameraPosition(
             target: target,
-            zoom: 19.0,
+            zoom: 17.0,
+            tilt: 45,
           ),
           markers: markers,
           buildingsEnabled: true,
           onMapCreated: (GoogleMapController controller) async{
             _controller.complete(controller);
             this.controller = controller;
+            this.controller.setMapStyle(_mapStyle);
           },
           mapType: MapType.normal,
         ),
@@ -101,8 +107,9 @@ class MapPageState extends State<MapPage> {
 
     controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(position.latitude, position.longitude),
-        zoom: 19.0,
+        zoom: 17.0,
         tilt: 45,
+        bearing: 45
     )));
   }
 
