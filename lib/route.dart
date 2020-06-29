@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -19,19 +20,26 @@ class RoutePage extends StatefulWidget {
 
 class RoutePageState extends State<RoutePage> {
   var db = new Mysql();
+  String _mapStyle;
   bool loading = true;
   Set<Marker> _markers = {};
   final Set<Polyline> _polyLines = {};
   GoogleMapsServices _googleMapsServices = GoogleMapsServices();
   Set<Polyline> get polyLines => _polyLines;
   Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController controller;
   static LatLng locTarget;
   LocationData currentLocation;
   final place = TextEditingController();
   BitmapDescriptor affectedIcon;
+  BitmapDescriptor pinLocationIcon;
+  BitmapDescriptor closeContactIcon;
   var routeAffectedPersonCounter = 0;
+  var routeCloseContactPersonCounter = 0;
   var tempLat;
   var tempLng;
+  var tempLat2;
+  var tempLng2;
 
   List directionLatLng = List();
   List locationPointLat = List();
@@ -40,25 +48,39 @@ class RoutePageState extends State<RoutePage> {
   void initState() {
     super.initState();
     setCustomMapPin();
+    rootBundle.loadString('assets/route_map_style.txt').then((string) {
+      _mapStyle = string;
+    });
   }
 
   void setCustomMapPin() async {
+
+    pinLocationIcon = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/user.png');
+
     affectedIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'assets/affected.png');
+
+    closeContactIcon = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/close_contact.png');
   }
 
   Future getAffectedData(List lat, List lng) async {
     db.getConnection().then((conn) {
       var x = 0;
       routeAffectedPersonCounter = 0;
+      routeCloseContactPersonCounter = 0;
       while(x < lat.length) {
-        //    creating a boundingBox for each point within 50m radius
-        var maxLat = lat[x] + 0.0005;
-        var minLat = lat[x] - 0.0005;
-        var maxLng = lng[x] + 0.0005;
-        var minLng = lng[x] - 0.0005;
+        //    creating a boundingBox for each point within 25m radius
+        var maxLat = lat[x] + 0.00025;
+        var minLat = lat[x] - 0.00025;
+        var maxLng = lng[x] + 0.00025;
+        var minLng = lng[x] - 0.00025;
         setAffectedMarker(maxLat,minLat,maxLng,minLng,conn,x);
+        setCloseContactMarker(maxLat,minLat,maxLng,minLng,conn,x);
         x++;
       }
     });
@@ -106,6 +128,48 @@ class RoutePageState extends State<RoutePage> {
     });
   }
 
+  void setCloseContactMarker(maxLat,minLat,maxLng,minLng,conn,pointNo){
+    var affLat = new List();
+    var affLng = new List();
+    String sql = "SELECT latitude, longitude, date_time from user_locations where serial in (SELECT serial from user_locations WHERE u_id in (SELECT u_id from user_status where u_status=3) and serial in (SELECT max(serial) from user_locations group by u_id) GROUP by u_id) and latitude BETWEEN $minLat and $maxLat and longitude BETWEEN $minLng and $maxLng";
+    conn.query(sql).then((results) {
+      for (var row in results) {
+        setState(() {
+          affLat.add(row[0]);
+          affLng.add(row[1]);
+          if(tempLat2 == null && tempLng2 == null) {
+            tempLng2 = row[1];
+            tempLat2 = row[0];
+            routeCloseContactPersonCounter++;
+          }
+
+          if(tempLat2 == row[0] && tempLng2 == row[1]) {
+            //do nothing
+          } else {
+            print(tempLng2);
+            print(tempLat2);
+            routeCloseContactPersonCounter++;
+            tempLng2 = row[1];
+            tempLat2 = row[0];
+            print(routeCloseContactPersonCounter);
+          }
+        });
+      }
+
+      setState(() {
+        for (var i=0; i<affLng.length; i++) {
+          Marker affMarker = new Marker(
+            markerId: MarkerId("C$pointNo$i"),
+            position: LatLng(affLat[i], affLng[i]),
+            icon: closeContactIcon,
+          );
+          print("marker C$pointNo$i added");
+          _markers.add(affMarker);
+        }
+      });
+    });
+  }
+
 
   void onCameraMove(CameraPosition position) {
     locTarget = position.target;
@@ -138,14 +202,14 @@ class RoutePageState extends State<RoutePage> {
         polylineId: PolylineId(locTarget.toString()),
         width: 8,
         points: _convertToLatLng(_decodePoly(encondedPoly)),
-        color: Colors.teal));
+        color: Colors.green));
   }
 
   void _addMarker(LatLng location, String address) {
     _markers.add(Marker(
         markerId: MarkerId("112"),
         position: location,
-        infoWindow: InfoWindow(title: address,),
+        infoWindow: InfoWindow(title: address, snippet: "2"),
         icon: BitmapDescriptor.defaultMarker));
   }
 
@@ -187,6 +251,15 @@ class RoutePageState extends State<RoutePage> {
 
     setState(() {
       locTarget = LatLng(userLocation?.latitude, userLocation?.longitude);
+      Marker resultMarker = new Marker(
+          markerId: MarkerId('myPos'),
+          position: locTarget,
+          icon: pinLocationIcon,
+          infoWindow: InfoWindow(
+            title: "I'm here!",
+          )
+      );
+      _markers.add(resultMarker);
     });
 
     return Scaffold(
@@ -206,9 +279,12 @@ class RoutePageState extends State<RoutePage> {
                 onCameraMove:  onCameraMove,
                 polylines: polyLines,
                 myLocationEnabled: true,
+                liteModeEnabled: false,
                 myLocationButtonEnabled: false,
                 onMapCreated: (GoogleMapController controller) {
                   _controller.complete(controller);
+                  this.controller = controller;
+                  this.controller.setMapStyle(_mapStyle);
                 },
               ),
             ),
@@ -255,17 +331,21 @@ class RoutePageState extends State<RoutePage> {
                     ),
 
                     Container(
-                      margin: EdgeInsets.only(left: 30, top: 17),
-                      width: 10,
-                      height: 10,
+                      margin: EdgeInsets.only(left: 15, top: 17),
+                      width: 30,
+                      height: 30,
+                      color: Colors.white,
                       child: Icon(
                         Icons.local_taxi,
                         color: Colors.black,
                       ),
                     ),
 
-                    Padding(
-                      padding: EdgeInsets.only(left: 310, top: 8),
+                    Container(
+                      margin: EdgeInsets.only(left: 320, top: 8),
+                      width: 40,
+                      height: 40,
+                      color: Colors.white,
                       child: IconButton(
                         icon: Icon(Icons.search),
                         iconSize: 30.0,
@@ -283,6 +363,36 @@ class RoutePageState extends State<RoutePage> {
                           });
                         },
                       ),
+                    ),
+                    Container(
+                      height: 50,
+                      width: 200,
+                      color: Colors.white70,
+                      margin: EdgeInsets.only(top: 70, left: 240),
+                      padding: EdgeInsets.only(right: 10, top: 5),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            'Affected: $routeAffectedPersonCounter',
+                            style: TextStyle(
+                                color: Colors.red[700],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                            ),
+
+                          ),
+                          SizedBox(height: 5,),
+                          Text(
+                            'Close Contacts: $routeCloseContactPersonCounter',
+                            style: TextStyle(
+                                color: Colors.amber[700],
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14
+                            ),
+
+                          ),
+                        ],
+                      )
                     )
                   ],
                 )

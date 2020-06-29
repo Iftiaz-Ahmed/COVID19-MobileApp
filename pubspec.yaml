@@ -73,7 +73,10 @@ flutter:
     - assets/location_marker.png
     - assets/current.png
     - assets/affected.png
+    - assets/close_contact.png
+    - assets/user.png
     - assets/map_style.txt
+    - assets/route_map_style.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

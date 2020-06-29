@@ -18,6 +18,7 @@ class MapPageState extends State<MapPage> {
   String _mapStyle;
   BitmapDescriptor pinLocationIcon;
   BitmapDescriptor affectedIcon;
+  BitmapDescriptor closeContactIcon;
   Set<Marker> markers = Set();
 
   Completer<GoogleMapController> _controller = Completer();
@@ -42,6 +43,10 @@ class MapPageState extends State<MapPage> {
     affectedIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'assets/affected.png');
+
+    closeContactIcon = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/close_contact.png');
 
   }
 
@@ -122,11 +127,14 @@ class MapPageState extends State<MapPage> {
     LatLngBounds latLngBounds = await controller.getVisibleRegion();
 
     if (latLngBounds.northeast.latitude >= northLatInc || latLngBounds.northeast.latitude <= northLatDec || latLngBounds.northeast.longitude >= northLngInc || latLngBounds.northeast.longitude <= northLngDec){
+      print(latLngBounds.northeast.latitude);
       northLatInc = latLngBounds.northeast.latitude + 0.001;
       northLatDec = latLngBounds.northeast.latitude - 0.001;
       northLngInc = latLngBounds.northeast.longitude + 0.001;
       northLngDec = latLngBounds.northeast.longitude - 0.001;
+      markers = {};  //clearing markers for new retrieved ones
       _getAffectedLoc(latLngBounds.northeast.latitude,latLngBounds.southwest.latitude,latLngBounds.northeast.longitude,latLngBounds.southwest.longitude);
+      _getCloseContact(latLngBounds.northeast.latitude,latLngBounds.southwest.latitude,latLngBounds.northeast.longitude,latLngBounds.southwest.longitude);
     }
   }
 
@@ -155,7 +163,6 @@ class MapPageState extends State<MapPage> {
         }
         i--;
 
-        markers = {};  //clearing markers for new retrieved ones
         setState(() {
           while(i>-1) {
             Marker affMarker = new Marker(
@@ -164,6 +171,47 @@ class MapPageState extends State<MapPage> {
               icon: affectedIcon,
             );
             print("marker $i added");
+            markers.add(affMarker);
+            i--;
+          }
+        });
+      });
+    });
+  }
+
+  Future _getCloseContact(maxLat, minLat, maxLng, minLng) async{
+    print("getting close contact data");
+    maxLng = maxLng + 0.002;
+    maxLat = maxLat + 0.002;
+    minLng = minLng - 0.002;
+    minLat = minLat - 0.002;
+
+    db.getConnection().then((conn) async{
+      String sql = "SELECT latitude, longitude, date_time from user_locations where serial in (SELECT serial from user_locations WHERE u_id in (SELECT u_id from user_status where u_status=3) and serial in (SELECT max(serial) from user_locations group by u_id) GROUP by u_id) and latitude BETWEEN $minLat and $maxLat and longitude BETWEEN $minLng and $maxLng";
+      conn.query(sql).then((results) {
+        var i=0;
+        var affLat = new List();
+        var affLng = new List();
+        for (var row in results) {
+          setState(() {
+            affLat.add(row[0]);
+            affLng.add(row[1]);
+            print("latlng of CC retrieved");
+            print(row[0]);
+            print(row[1]);
+          });
+          i++;
+        }
+        i--;
+
+        setState(() {
+          while(i>-1) {
+            Marker affMarker = new Marker(
+              markerId: MarkerId("C$i"),
+              position: LatLng(affLat[i], affLng[i]),
+              icon: closeContactIcon,
+            );
+            print("marker C$i added");
             markers.add(affMarker);
             i--;
           }
