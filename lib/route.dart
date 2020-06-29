@@ -209,7 +209,7 @@ class RoutePageState extends State<RoutePage> {
     _markers.add(Marker(
         markerId: MarkerId("112"),
         position: location,
-        infoWindow: InfoWindow(title: address, snippet: "2"),
+        infoWindow: InfoWindow(title: address,),
         icon: BitmapDescriptor.defaultMarker));
   }
 
