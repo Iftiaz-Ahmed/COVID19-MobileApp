@@ -19,4 +19,4 @@ accuracy and effectiveness of our proposed strategy.
 
 Developing team: Iftiaz, Sajid, Rumman, Ziad, Mahfuzur Rahman
 
-##Still under development.
+![Alt text](assets/affected.png?raw=true "Title")
